@@ -42,5 +42,18 @@ def get_task(id: int):
             return task
     raise HTTPException(status_code=404, detail="error:"  f"Task {id} not found")
 
+@app.post("/tasks")
+def post_task(task_title: str ):
+    #search task with id
+    if task_title and task_title.strip():
+        new_task = {
+            "id": len(tasks) + 1,
+            "title": task_title,
+            "done": False
+            }
+        tasks.append(new_task)
+        return {"message": "New task added", "tasks": new_task}
+    else:
+        raise HTTPException(status_code=404, detail="error:" "Task title is missing or empty")
 
        
