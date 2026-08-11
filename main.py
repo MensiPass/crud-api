@@ -22,6 +22,12 @@ tasks = [
     }
 ]
 
+class Task(BaseModel):
+    id: int
+    title: str
+    done: bool
+
+tids=[]
 @app.get("/")
 def api_info():
     return {
@@ -56,4 +62,26 @@ def post_task(task_title: str ):
     else:
         raise HTTPException(status_code=404, detail="error:" "Task title is missing or empty")
 
-       
+@app.put("/tasks/{id}")
+def put_task(utask: Task ):
+    #search task with id
+    for task in tasks:
+        tids.append(task["id"])
+    if not utask.id and not utask.title.strip() and not tids.includes(utask.id):
+        raise HTTPException(status_code=404, detail="error:" "Task title is missing or empty")
+    else:
+        for task in tasks:
+            if task["id"]==utask.id:
+                task["title"]=utask.title
+                if utask.done:  
+                    task["done"]=utask.done 
+        return {"message": "New task updated", "tasks": tasks}
+   
+@app.delete("/tasks/{id}")
+def del_task(id: int ):
+    #search task with id
+    for task in tasks:
+        if task["id"]==id:
+            tasks.remove(task)
+            return {"message": "New task list without deleted task", "tasks": tasks}
+    raise HTTPException(status_code=404, detail="error:" "Task with specified id is missing")
