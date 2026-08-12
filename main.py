@@ -40,15 +40,15 @@ def api_info():
         "version": "1.0",
         "endpoints": ["/tasks"]
     }
-@app.get("/health",description="Checks app health", status_code=201)
+@app.get("/health",description="Checks app health", status_code=200)
 def app_health():
     return { "status": "ok" }
 
-@app.get("/tasks",description="Returns all tasks")
+@app.get("/tasks",description="Returns all tasks", status_code=200)
 def app_info():
     return tasks
 
-@app.get("/tasks/{id}",description="Returns specific task")
+@app.get("/tasks/{id}",description="Returns specific task", status_code=200)
 def get_task(id: int):
     #search task with id
     for task in tasks:
