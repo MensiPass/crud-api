@@ -232,12 +232,15 @@ Swagger UI can be used to test the complete CRUD workflow without using `curl`.
 ![Swagger UI](crudimg.png)
 ![Swagger UI](description.png)
 
-FastAPI CRUD API with SQLite
+## FastAPI CRUD API with SQLite
 A simple CRUD API built with FastAPI and SQLite. The project allows users to create, read, update, and delete tasks.
 
-Requirement:Install SQLModel
+### Requirement: Install SQLModel
 
+```text
 pip install sqlmodel
+```
+
 
 Database
 
