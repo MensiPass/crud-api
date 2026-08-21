@@ -1,38 +1,46 @@
 from fastapi import FastAPI,HTTPException
 from pydantic import BaseModel
+from sqlmodel import Field,SQLModel, create_engine,Session,select
 
 app = FastAPI()
 
-# temp data for tasks
-tasks = [
-    {
-        "id": 1,
-        "title": "Learn FastAPI",
-        "done": False
-    },
-    {
-        "id": 2,
-        "title": "Build Task API",
-        "done": False
-    },
-    {
-        "id": 3,
-        "title": "Push project to GitHub",
-        "done": True
-    }
-]
+#create database
+DATABASE_URL="sqlite:///tasks.db"
 
-class Task(BaseModel):
-    id: int
+engine=create_engine(
+    DATABASE_URL,
+    connect_args={"check_same_thread": False}  
+)
+#tasks = [{"id": 1,"title": "Learn FastAPI","done": False},{"id": 2,"title": "Build Task API","done": False}, {"id": 3, "title": "Push project to GitHub", "done": True }]
+#task table in DB
+class Task (SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
     title: str
-    done: bool
-class TaskCreate(BaseModel):
-    title: str
-class TaskUpdate(BaseModel):
-    title: str
-    done: bool
+    done: bool = False
 
 tids=[]
+
+#enter initial tasks in DB, only if none present
+def create_db_and_seed():
+    SQLModel.metadata.create_all(engine)
+
+    with Session(engine) as session:
+        tasks = session.exec(select(Task)).all()
+
+        if not tasks:
+            example_tasks = [
+                Task(title="Learn FastAPI", done=False),
+                Task(title="Learn SQLite", done=False),
+                Task(title="Build CRUD API", done=False),
+            ]
+
+            session.add_all(example_tasks)
+            session.commit()
+
+
+create_db_and_seed()
+# temp data for tasks
+
 @app.get("/", description="Returns information about the Task API")
 def api_info():
     return {
@@ -46,57 +54,6 @@ def app_health():
 
 @app.get("/tasks",description="Returns all tasks", status_code=200)
 def app_info():
-    return tasks
-
-@app.get("/tasks/{id}",description="Returns specific task", status_code=200)
-def get_task(id: int):
-    #search task with id
-    for task in tasks:
-        if task["id"]==id:
-            return task
-    raise HTTPException(status_code=404, detail="error:"  f"Task {id} not found")
-
-@app.post("/tasks",description="Adds new task",status_code=201)
-def post_task(task: TaskCreate ):
-    if not task.title.strip():
-        raise HTTPException(
-            status_code=400,
-            detail="Task title is missing or empty"
-        )
-
-    new_task = {
-        "id": len(tasks) + 1,
-        "title": task.title,
-        "done": False
-    }
-
-    tasks.append(new_task)
-    return {"message": "New task added", "tasks": new_task}
-
-@app.put("/tasks/{id}",description="Updates specific task",status_code=200)
-def put_task(id: int, utask: TaskUpdate ):
-    for task in tasks:
-        if task["id"] == id:
-            if utask.title is not None:
-                if not utask.title.strip():
-                    raise HTTPException(
-                        status_code=400,
-                        detail="Task title cannot be empty"
-                    )
-                task["title"] = utask.title
-            if utask.done is not None:
-                task["done"] = utask.done
-            return task
-    raise HTTPException(
-        status_code=404,
-        detail=f"Task {id} not found"
-    )
-   
-@app.delete("/tasks/{id}",description="Deletes specific task",status_code=204)
-def del_task(id: int ):
-    #search task with id
-    for task in tasks:
-        if task["id"]==id:
-            tasks.remove(task)
-            return {"message": "New task list without deleted task", "tasks": tasks}
-    raise HTTPException(status_code=404, detail="error:" "Task with specified id is missing")
+    with Session(engine) as session:
+        tasks = session.exec(select(Task)).all()
+        return tasks
