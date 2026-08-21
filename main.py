@@ -13,7 +13,7 @@ engine=create_engine(
 )
 #tasks = [{"id": 1,"title": "Learn FastAPI","done": False},{"id": 2,"title": "Build Task API","done": False}, {"id": 3, "title": "Push project to GitHub", "done": True }]
 #task table in DB
-class Task (SQLModel, table=True):
+class Tasks (SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     title: str
     done: bool = False
@@ -25,13 +25,13 @@ def create_db_and_seed():
     SQLModel.metadata.create_all(engine)
 
     with Session(engine) as session:
-        tasks = session.exec(select(Task)).all()
+        tasks = session.exec(select(Tasks)).all()
 
         if not tasks:
             example_tasks = [
-                Task(title="Learn FastAPI", done=False),
-                Task(title="Learn SQLite", done=False),
-                Task(title="Build CRUD API", done=False),
+                Tasks(title="Learn FastAPI", done=False),
+                Tasks(title="Learn SQLite", done=False),
+                Tasks(title="Build CRUD API", done=False),
             ]
 
             session.add_all(example_tasks)
@@ -60,13 +60,13 @@ def app_health():
 @app.get("/tasks",description="Returns all tasks", status_code=200)
 def app_info():
     with Session(engine) as session:
-        tasks = session.exec(select(Task)).all()
+        tasks = session.exec(select(Tasks)).all()
         return tasks
     
 @app.get("/tasks/{id}", description="Returns specific task", status_code=200)
 def get_task(id: int):
     with Session(engine) as session:
-        task = session.get(Task, id)
+        task = session.get(Tasks, id)
 
         if task is None:
             raise HTTPException(
@@ -84,7 +84,7 @@ def post_task(task: TaskCreate):
             detail="Task title is missing or empty"
         )
 
-    new_task = Task(
+    new_task = Tasks(
         title=task.title,
         done=False
     )
@@ -99,7 +99,7 @@ def post_task(task: TaskCreate):
 @app.put("/tasks/{id}", description="Updates specific task", status_code=200)
 def put_task(id: int, utask: TaskUpdate):
     with Session(engine) as session:
-        task = session.get(Task, id)
+        task = session.get(Tasks, id)
 
         if task is None:
             raise HTTPException(
@@ -127,7 +127,7 @@ def put_task(id: int, utask: TaskUpdate):
 @app.delete("/tasks/{id}",description="Deletes specific task",status_code=204)
 def del_task(id: int):
     with Session(engine) as session:
-        task = session.get(Task, id)
+        task = session.get(Tasks, id)
 
         if task is None:
             raise HTTPException(
