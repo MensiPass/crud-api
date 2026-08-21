@@ -57,3 +57,16 @@ def app_info():
     with Session(engine) as session:
         tasks = session.exec(select(Task)).all()
         return tasks
+    
+@app.get("/tasks/{id}", description="Returns specific task", status_code=200)
+def get_task(id: int):
+    with Session(engine) as session:
+        task = session.get(Task, id)
+
+        if task is None:
+            raise HTTPException(
+                status_code=404,
+                detail="error: Task not found"
+            )
+
+        return task
