@@ -40,6 +40,11 @@ def create_db_and_seed():
 
 create_db_and_seed()
 # temp data for tasks
+class TaskCreate(BaseModel):
+    title: str
+class TaskUpdate(BaseModel):
+    title: str
+    done: bool
 
 @app.get("/", description="Returns information about the Task API")
 def api_info():
@@ -70,3 +75,23 @@ def get_task(id: int):
             )
 
         return task
+
+@app.post("/tasks", description="Adds new task", status_code=201)
+def post_task(task: TaskCreate):
+    if not task.title.strip():
+        raise HTTPException(
+            status_code=400,
+            detail="Task title is missing or empty"
+        )
+
+    new_task = Task(
+        title=task.title,
+        done=False
+    )
+
+    with Session(engine) as session:
+        session.add(new_task)
+        session.commit()
+        session.refresh(new_task)
+
+    return {"message": "Task added", "tasks": new_task}
