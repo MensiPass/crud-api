@@ -95,3 +95,45 @@ def post_task(task: TaskCreate):
         session.refresh(new_task)
 
     return {"message": "Task added", "tasks": new_task}
+
+@app.put("/tasks/{id}", description="Updates specific task", status_code=200)
+def put_task(id: int, utask: TaskUpdate):
+    with Session(engine) as session:
+        task = session.get(Task, id)
+
+        if task is None:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Task {id} not found"
+            )
+
+        if utask.title is not None:
+            if not utask.title.strip():
+                raise HTTPException(
+                    status_code=400,
+                    detail="Task title cannot be empty"
+                )
+            task.title = utask.title
+
+        if utask.done is not None:
+            task.done = utask.done
+
+        session.add(task)
+        session.commit()
+        session.refresh(task)
+
+        return task
+
+@app.delete("/tasks/{id}",description="Deletes specific task",status_code=204)
+def del_task(id: int):
+    with Session(engine) as session:
+        task = session.get(Task, id)
+
+        if task is None:
+            raise HTTPException(
+                status_code=404,
+                detail="error: Task with specified id is missing"
+            )
+
+        session.delete(task)
+        session.commit()
