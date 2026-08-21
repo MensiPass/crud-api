@@ -263,11 +263,12 @@ The tasks.db file is not committed to GitHub. It is automatically created when t
 
 The application creates a tasks table with the following columns:
 
-| Column | Type | Description |
-|---|---|---|---|
-| id | integer | Primary key |
-| title | string | Task title |
-| done | boolean | If the task is done |
+
+| Field   | Data Type | Constraints                 | Description                             |
+| ------- | --------- | --------------------------- | --------------------------------------- |
+| `id`    | INTEGER   | Primary Key, Auto-increment | Unique identifier for each task         |
+| `title` | TEXT      | NOT NULL                    | Title of the task        |
+| `done`  | BOOLEAN   | Default: `False`            | If the task is completed |
 
 
 ![SQLite database viewed in DB Browser](db.png)
