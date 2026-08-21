@@ -263,10 +263,10 @@ The tasks.db file is not committed to GitHub. It is automatically created when t
 
 The application creates a tasks table with the following columns:
 
-Column	Type	Description
-id	INTEGER	Primary key
-title	TEXT	Task title
-done	BOOLEAN	Whether the task is completed
+
+id	INTEGER	(Primary key)
+title	TEXT	(Task title)
+done	BOOLEAN	(Whether the task is completed)
 
 ![SQLite database viewed in DB Browser](db.png)
 
