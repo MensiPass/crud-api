@@ -271,5 +271,8 @@ The application creates a tasks table with the following columns:
 | `done`  | BOOLEAN   | Default: `False`            | If the task is completed |
 
 
+### SQLite Database Viewer
+
+The database was inspected using DB Browser for SQLite.
 ![SQLite database viewed in DB Browser](db.png)
 
