@@ -242,22 +242,31 @@ pip install sqlmodel
 ```
 
 
-Database
+### Database
 
 This project uses SQLite as the database.
 
 SQLite was chosen because it is lightweight, requires no separate database server, and stores the entire database in a single file.
+
 The database file is:
 
+```text
 tasks.db
+```
+
 
 It is stored in the root directory of the project.
 
 The tasks.db file is not committed to GitHub. It is automatically created when the application starts.
 
-Database Structure
+### Database Structure
 
-The application creates a tasks table with the following columns: id(INTEGER, Primary key), title(Text, task title), done(boolean, if task is completed)
+The application creates a tasks table with the following columns:
+
+Column	Type	Description
+id	INTEGER	Primary key
+title	TEXT	Task title
+done	BOOLEAN	Whether the task is completed
 
 ![SQLite database viewed in DB Browser](db.png)
 
