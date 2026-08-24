@@ -1,7 +1,7 @@
 from fastapi import FastAPI,HTTPException
 from pydantic import BaseModel
 from sqlmodel import Field,SQLModel, create_engine,Session,select
-import os
+import os, psycopg
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -53,22 +53,44 @@ def app_health():
 
 @app.get("/tasks",description="Returns all tasks", status_code=200)
 def app_info():
-    with Session(engine) as session:
-        tasks = session.exec(select(Tasks)).all()
+    with psycopg.connect(DATABASE_URL) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT * FROM tasks")
+            rows = cursor.fetchall()
+
+            tasks = []
+
+            for row in rows:
+                tasks.append({
+                    "id": row[0],
+                    "title": row[1],
+                    "done": row[2]
+                })
+
         return tasks
     
 @app.get("/tasks/{id}", description="Returns specific task", status_code=200)
 def get_task(id: int):
-    with Session(engine) as session:
-        task = session.get(Tasks, id)
-
-        if task is None:
-            raise HTTPException(
-                status_code=404,
-                detail="error: Task not found"
+    with psycopg.connect(DATABASE_URL) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT * FROM tasks WHERE id = %s",
+                (id,)
             )
 
-        return task
+            row = cursor.fetchone()
+
+    if row is None:
+        raise HTTPException(
+            status_code=404,
+            detail="error: Task not found"
+        )
+
+    return {
+        "id": row[0],
+        "title": row[1],
+        "done": row[2]
+    }
 
 @app.post("/tasks", description="Adds new task", status_code=201)
 def post_task(task: TaskCreate):
