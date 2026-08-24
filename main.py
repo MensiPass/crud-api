@@ -1,50 +1,44 @@
 from fastapi import FastAPI,HTTPException
 from pydantic import BaseModel
 from sqlmodel import Field,SQLModel, create_engine,Session,select
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = FastAPI()
 
-#create database
-DATABASE_URL="sqlite:///tasks.db"
+#connect to database from enviromental variables
+DATABASE_URL = os.getenv("DATABASE_URL")
+engine=create_engine(DATABASE_URL)
 
-engine=create_engine(
-    DATABASE_URL,
-    connect_args={"check_same_thread": False}  
-)
-#tasks = [{"id": 1,"title": "Learn FastAPI","done": False},{"id": 2,"title": "Build Task API","done": False}, {"id": 3, "title": "Push project to GitHub", "done": True }]
 #task table in DB
 class Tasks (SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     title: str
     done: bool = False
+class TaskCreate(BaseModel):
+    title: str
+class TaskUpdate(BaseModel):
+    title: str
+    done: bool
 
-tids=[]
 
-#enter initial tasks in DB, only if none present
+#seed initial data
 def create_db_and_seed():
-    SQLModel.metadata.create_all(engine)
-
     with Session(engine) as session:
         tasks = session.exec(select(Tasks)).all()
 
         if not tasks:
             example_tasks = [
                 Tasks(title="Learn FastAPI", done=False),
-                Tasks(title="Learn SQLite", done=False),
+                Tasks(title="Learn PostgreSQL", done=False),
                 Tasks(title="Build CRUD API", done=False),
             ]
 
             session.add_all(example_tasks)
             session.commit()
-
-
 create_db_and_seed()
-# temp data for tasks
-class TaskCreate(BaseModel):
-    title: str
-class TaskUpdate(BaseModel):
-    title: str
-    done: bool
 
 @app.get("/", description="Returns information about the Task API")
 def api_info():
