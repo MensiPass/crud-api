@@ -100,56 +100,95 @@ def post_task(task: TaskCreate):
             detail="Task title is missing or empty"
         )
 
-    new_task = Tasks(
-        title=task.title,
-        done=False
-    )
+    with psycopg.connect(DATABASE_URL) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO tasks (title, done)
+                VALUES (%s, %s)
+                RETURNING id, title, done
+                """,
+                (task.title, False)
+            )
 
-    with Session(engine) as session:
-        session.add(new_task)
-        session.commit()
-        session.refresh(new_task)
+            row = cursor.fetchone()
 
-    return {"message": "Task added", "tasks": new_task}
+    new_task = {
+        "id": row[0],
+        "title": row[1],
+        "done": row[2]
+    }
+
+    return {
+        "message": "Task added",
+        "tasks": new_task
+    }
 
 @app.put("/tasks/{id}", description="Updates specific task", status_code=200)
 def put_task(id: int, utask: TaskUpdate):
-    with Session(engine) as session:
-        task = session.get(Tasks, id)
 
-        if task is None:
+    if utask.title is not None:
+        if not utask.title.strip():
             raise HTTPException(
-                status_code=404,
-                detail=f"Task {id} not found"
+                status_code=400,
+                detail="Task title cannot be empty"
             )
 
-        if utask.title is not None:
-            if not utask.title.strip():
+    with psycopg.connect(DATABASE_URL) as connection:
+        with connection.cursor() as cursor:
+
+            # Check if task exists
+            cursor.execute(
+                "SELECT id, title, done FROM tasks WHERE id = %s",
+                (id,)
+            )
+
+            task = cursor.fetchone()
+
+            if task is None:
                 raise HTTPException(
-                    status_code=400,
-                    detail="Task title cannot be empty"
+                    status_code=404,
+                    detail=f"Task {id} not found"
                 )
-            task.title = utask.title
 
-        if utask.done is not None:
-            task.done = utask.done
-
-        session.add(task)
-        session.commit()
-        session.refresh(task)
-
-        return task
-
-@app.delete("/tasks/{id}",description="Deletes specific task",status_code=204)
-def del_task(id: int):
-    with Session(engine) as session:
-        task = session.get(Tasks, id)
-
-        if task is None:
-            raise HTTPException(
-                status_code=404,
-                detail="error: Task with specified id is missing"
+            # Update the task
+            cursor.execute(
+                """
+                UPDATE tasks
+                SET title = %s,
+                    done = %s
+                WHERE id = %s
+                RETURNING id, title, done
+                """,
+                (
+                    utask.title,
+                    utask.done,
+                    id
+                )
             )
 
-        session.delete(task)
-        session.commit()
+            row = cursor.fetchone()
+
+    return {
+        "id": row[0],
+        "title": row[1],
+        "done": row[2]
+    }
+
+@app.delete("/tasks/{id}", description="Deletes specific task", status_code=204)
+def del_task(id: int):
+    with psycopg.connect(DATABASE_URL) as connection:
+        with connection.cursor() as cursor:
+
+            cursor.execute(
+                "DELETE FROM tasks WHERE id = %s RETURNING id",
+                (id,)
+            )
+
+            row = cursor.fetchone()
+
+            if row is None:
+                raise HTTPException(
+                    status_code=404,
+                    detail="error: Task with specified id is missing"
+                )
