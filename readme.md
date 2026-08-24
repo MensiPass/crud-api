@@ -280,4 +280,5 @@ The database was inspected using DB Browser for SQLite.
 
 Install Docker and start Postgres
 Checking Postgres in docker
-![Docker and postgres](postgres.png)
+
+<img src="pg.png" width="500">
