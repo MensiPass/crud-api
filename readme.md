@@ -276,3 +276,8 @@ The application creates a tasks table with the following columns:
 The database was inspected using DB Browser for SQLite.
 ![SQLite database viewed in DB Browser](db.png)
 
+### Docker and Postgres
+
+Install Docker and start Postgres
+Checking Postgres in docker
+![Docker and postgres](postgres.png)
