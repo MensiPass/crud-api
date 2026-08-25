@@ -10,7 +10,7 @@ app = FastAPI()
 
 #connect to database from enviromental variables
 DATABASE_URL = os.getenv("DATABASE_URL")
-engine=create_engine(DATABASE_URL)
+engine = create_engine(DATABASE_URL.replace("postgresql://", "postgresql+psycopg://"))
 
 #task table in DB
 class Tasks (SQLModel, table=True):
