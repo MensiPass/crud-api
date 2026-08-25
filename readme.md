@@ -229,8 +229,8 @@ Swagger UI can be used to test the complete CRUD workflow without using `curl`.
 
 ### Swagger Screenshot
 
-![Swagger UI](crudimg.png)
-![Swagger UI](description.png)
+![Swagger UI](img/crudimg.png)
+![Swagger UI](img/description.png)
 
 ## FastAPI CRUD API with SQLite
 A simple CRUD API built with FastAPI and SQLite. The project allows users to create, read, update, and delete tasks.
@@ -274,11 +274,37 @@ The application creates a tasks table with the following columns:
 ### SQLite Database Viewer
 
 The database was inspected using DB Browser for SQLite.
-![SQLite database viewed in DB Browser](db.png)
+![SQLite database viewed in DB Browser](img/db.png)
 
 ### Docker and Postgres
 
 Install Docker and start Postgres
 Checking Postgres in docker
 
-<img src="pg.png" width="500">
+<img src="img/pg.png" width="500">
+
+### Get task from Postgres database
+
+After Postgres setup get task with specified id.
+
+<img src="img/fetchpostgres.png" width="600">
+
+### Create, update, delete task from Postgres database
+
+Test creating, updating and deleting from Postgres
+
+<img src="img/cud.png" width="600">
+
+<img src="img/cud2.png" width="600">
+
+<img src="img/cud3.png" width="600">
+
+### Compose build
+
+With docker compose build and start the project 
+
+```text
+docker compose up --build
+```
+
+<img src="img/combuild.png" width="500">
