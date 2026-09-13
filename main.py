@@ -3,12 +3,14 @@ from pydantic import BaseModel
 from sqlmodel import Field,SQLModel, create_engine,Session,select
 import os, psycopg
 from dotenv import load_dotenv
+from llm.schema import TriageRequest, TriageResponse
 
 load_dotenv()
 
 app = FastAPI()
 
 #connect to database from enviromental variables
+'''
 DATABASE_URL = os.getenv("DATABASE_URL")
 engine = create_engine(DATABASE_URL.replace("postgresql://", "postgresql+psycopg://"))
 
@@ -192,3 +194,12 @@ def del_task(id: int):
                     status_code=404,
                     detail="error: Task with specified id is missing"
                 )
+'''
+@app.post("/triage", response_model=TriageResponse)
+def triage(request: TriageRequest):
+    return TriageResponse(
+        category="other",
+        urgency="normal",
+        confidence=0.5,
+        reason="Stub response for Stage 1.",
+    )
