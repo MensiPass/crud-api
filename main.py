@@ -205,8 +205,21 @@ def triage(request: TriageRequest):
         confidence=0.5,
         reason="Stub response for Stage 1.",
     )
-'''
+
 
 @app.post("/triage", response_model=TriageResponse)
 def triage(request: TriageRequest):
     return triage_with_llm(request.text)
+'''
+
+@app.post("/triage", response_model=TriageResponse)
+def triage(request: TriageRequest):
+
+    try:
+        return triage_with_llm(request.text)
+
+    except ValueError as error:
+        raise HTTPException(
+            status_code=422,
+            detail=str(error),
+        )
