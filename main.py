@@ -197,6 +197,7 @@ def del_task(id: int):
                 )
 '''
 '''
+#stage 1
 @app.post("/triage", response_model=TriageResponse)
 def triage(request: TriageRequest):
     return TriageResponse(
@@ -206,12 +207,12 @@ def triage(request: TriageRequest):
         reason="Stub response for Stage 1.",
     )
 
-
+#stage 2
 @app.post("/triage", response_model=TriageResponse)
 def triage(request: TriageRequest):
     return triage_with_llm(request.text)
-'''
 
+#stage 3
 @app.post("/triage", response_model=TriageResponse)
 def triage(request: TriageRequest):
 
@@ -223,3 +224,17 @@ def triage(request: TriageRequest):
             status_code=422,
             detail=str(error),
         )
+'''
+#stage 4
+@app.post("/triage", response_model=TriageResponse)
+def triage(request: TriageRequest):
+
+    if os.getenv("LLM_STUB", "0") == "1":
+        return TriageResponse(
+            category="other",
+            urgency="normal",
+            confidence=0.5,
+            reason="Stub response for testing.",
+        )
+
+    return triage_with_llm(request.text)
