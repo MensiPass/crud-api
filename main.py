@@ -4,6 +4,7 @@ from sqlmodel import Field,SQLModel, create_engine,Session,select
 import os, psycopg
 from dotenv import load_dotenv
 from llm.schema import TriageRequest, TriageResponse
+from llm.client import triage_with_llm
 
 load_dotenv()
 
@@ -195,6 +196,7 @@ def del_task(id: int):
                     detail="error: Task with specified id is missing"
                 )
 '''
+'''
 @app.post("/triage", response_model=TriageResponse)
 def triage(request: TriageRequest):
     return TriageResponse(
@@ -203,3 +205,8 @@ def triage(request: TriageRequest):
         confidence=0.5,
         reason="Stub response for Stage 1.",
     )
+'''
+
+@app.post("/triage", response_model=TriageResponse)
+def triage(request: TriageRequest):
+    return triage_with_llm(request.text)
