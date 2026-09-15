@@ -1,0 +1,34 @@
+[
+  {
+    "text": "I was charged twice for my subscription.",
+    "category": "billing"
+  },
+  {
+    "text": "The checkout page crashes whenever I click Pay.",
+    "category": "bug"
+  },
+  {
+    "text": "Please add Apple Pay as a payment option.",
+    "category": "feature"
+  },
+  {
+    "text": "Can you tell me more about your company?",
+    "category": "other"
+  },
+  {
+    "text": "My invoice amount looks wrong and I need this fixed today.",
+    "category": "billing"
+  },
+  {
+    "text": "The application has been showing a blank screen since this morning.",
+    "category": "bug"
+  },
+  {
+    "text": "It would be useful if you added dark mode.",
+    "category": "feature"
+  },
+  {
+    "text": "Hi, I am not sure what I need help with.",
+    "category": "other"
+  }
+]

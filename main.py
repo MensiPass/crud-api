@@ -1,17 +1,24 @@
-from fastapi import FastAPI,HTTPException
-from pydantic import BaseModel
+from fastapi import FastAPI,HTTPException,Request
+from pydantic import BaseModel,ValidationError
 from sqlmodel import Field,SQLModel, create_engine,Session,select
 import os, psycopg
 from dotenv import load_dotenv
 from llm.schema import TriageRequest, TriageResponse
 from llm.client import triage_with_llm
+from fastapi.exceptions import RequestValidationError
 
 load_dotenv()
 
 app = FastAPI()
-
-#connect to database from enviromental variables
+from llm.client import (
+    LLMAuthenticationError,
+    LLMTimeoutError,
+    LLMUnavailableError,
+    triage_with_llm,
+)
 '''
+#connect to database from enviromental variables
+
 DATABASE_URL = os.getenv("DATABASE_URL")
 engine = create_engine(DATABASE_URL.replace("postgresql://", "postgresql+psycopg://"))
 
@@ -224,7 +231,7 @@ def triage(request: TriageRequest):
             status_code=422,
             detail=str(error),
         )
-'''
+
 #stage 4
 @app.post("/triage", response_model=TriageResponse)
 def triage(request: TriageRequest):
@@ -238,3 +245,55 @@ def triage(request: TriageRequest):
         )
 
     return triage_with_llm(request.text)
+'''
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(
+    request: Request,
+    exc: RequestValidationError,
+):
+    errors = exc.errors()
+
+    field = "unknown"
+
+    if errors:
+        location = errors[0].get("loc", [])
+
+        if location:
+            field = str(location[-1])
+
+    return JSONResponse(
+        status_code=400,
+        content={
+            "error": "Invalid request",
+            "field": field,
+        },
+    )
+#stage 5
+@app.post("/triage", response_model=TriageResponse)
+def triage(request: TriageRequest):
+    try:
+        return triage_with_llm(request.text)
+
+    except LLMTimeoutError as error:
+        raise HTTPException(
+            status_code=504,
+            detail=str(error),
+        )
+
+    except LLMAuthenticationError as error:
+        raise HTTPException(
+            status_code=401,
+            detail=str(error),
+        )
+
+    except LLMUnavailableError as error:
+        raise HTTPException(
+            status_code=503,
+            detail=str(error),
+        )
+
+    except ValueError as error:
+        raise HTTPException(
+            status_code=422,
+            detail=str(error),
+        )

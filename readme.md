@@ -308,3 +308,49 @@ docker compose up --build
 ```
 
 <img src="img/combuild.png" width="500">
+
+# Put an LLM behind your API
+
+## CRUD API + LLM Triage
+
+This project adds a small AI-powered `/triage` endpoint to the existing FastAPI API.
+
+The endpoint receives a customer support message and classifies it into one of four categories:
+
+- billing
+- bug
+- feature
+- other
+
+It also returns urgency, confidence and a short reason.
+
+The model output is never trusted directly. It is parsed and validated with Pydantic. If validation fails, the model receives exactly one repair request. If that also fails, the API returns HTTP 422 and stores the failed output in quarantine.
+
+### Run
+
+Create `.env` from `.env.example` and add your OpenRouter API key.
+
+Start the API:
+
+```powershell
+python -m fastapi dev main.py --port 8001
+```
+
+# LLM Triage API
+
+## What it does
+
+This API adds a `/triage` endpoint to the existing FastAPI CRUD API.
+It accepts a customer support message and uses an LLM to classify it
+into one of four categories: billing, bug, feature, or other. It also
+assigns urgency and a confidence score. Model output is parsed and
+validated before it is returned.
+
+## Endpoint
+
+POST `/triage`
+
+Example:
+
+```bash
+curl.exe -X POST http://localhost:8001/triage -H "Content-Type: application/json" -d '{"text":"Please add Apple Pay to checkout."}'
